@@ -6,8 +6,8 @@ port module Main exposing (main)
 
 import Browser
 import Html exposing (Html, button, div, input, text)
-import Html.Attributes exposing (type_, value)
-import Html.Events exposing (onClick, onInput)
+import Html.Attributes exposing (type_, value, id)
+import Html.Events exposing (on)
 import Json.Decode as Decode
 import Json.Encode exposing (Value)
 
@@ -22,13 +22,20 @@ main =
 
 
 type alias Model =
-    { message : String
+    { id : String
+    , mFile : Maybe File
+    }
+
+
+type alias File =
+    { contents : String
+    , filename : String
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { message = "Elm program is ready. Get started!" }, Cmd.none )
+    ( { id = "FileId", mFile = Nothing }, Cmd.none )
 
 
 
@@ -36,24 +43,36 @@ init _ =
 
 
 type Msg
-    = UpdateStr String
-    | SendToJs String
+    = FileSelected
+    | FileRead File
 
 
-port toJs : String -> Cmd msg
+port fileSelected : String -> Cmd msg
 
 
-port toElm : (Value -> msg) -> Sub msg
+port fileContentRead : (File -> msg) -> Sub msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        UpdateStr str ->
-            ( { model | message = str }, Cmd.none )
+        FileSelected ->
+            ( model
+            , fileSelected model.id
+            )
 
-        SendToJs str ->
-            ( model, toJs str )
+        FileRead data ->
+            let
+                newFile =
+                    { contents = data.contents
+                    , filename = data.filename
+                    }
+            in
+            ( { model
+                | mFile = Just newFile
+              }
+            , Cmd.none
+            )
 
 
 
@@ -64,21 +83,38 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "Sizing Web"
     , body =
-        [ div []
-            [ input [ type_ "text", onInput UpdateStr, value model.message ] []
-            , div [] [ text model.message ]
-            , button
-                [ onClick (SendToJs model.message) ]
-                [ text "Send To JS" ]
+        [ let
+            filePreview =
+                case model.mFile of
+                    Just i ->
+                        viewFilePreview i
+
+                    Nothing ->
+                        text ""
+          in
+          div []
+            [ input
+                [ type_ "file"
+                , id model.id
+                , on "change"
+                    (Decode.succeed FileSelected)
+                ]
+                []
+            , filePreview
             ]
         ]
     }
 
 
+viewFilePreview : File -> Html Msg
+viewFilePreview file =
+    div [] [ text file.filename, text file.contents ]
+
+
 
 -- SUBSCRIPTIONS
 
-
+{-
 decodeValue : Value -> Msg
 decodeValue x =
     let
@@ -86,16 +122,16 @@ decodeValue x =
             Decode.decodeValue Decode.string x
     in
     case result of
-        Ok string ->
-            UpdateStr string
+        Ok file ->
+            FileRead file
 
         Err _ ->
-            UpdateStr "Silly JavaScript, you can't kill me!"
-
+            FileRead { filename = "Failure", contents = "" }
+-}
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    toElm decodeValue
+    fileContentRead FileRead
 
 
 
