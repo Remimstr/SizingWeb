@@ -1,20 +1,36 @@
 port module Main exposing (main)
 
 -- import Ports exposing (ImagePortData, fileSelected, fileContentRead)
---import Element exposing (Element, rgb)
---import Element.Background as Background
 
 import Browser
-import Html exposing (Html, button, div, input, text)
-import Html.Attributes exposing (type_, value, id)
+import Element exposing (..)
+import Element.Background as Background
+import Element.Border as Border
+import Element.Font as Font
+import Element.Input exposing (button)
+import Html exposing (Html)
+import Html.Attributes exposing (id, style, type_, value)
 import Html.Events exposing (on)
 import Json.Decode as Decode
 import Json.Encode exposing (Value)
+import String exposing (fromInt)
 
 
 main : Program () Model Msg
 main =
     Browser.document { init = init, update = update, subscriptions = subscriptions, view = view }
+
+
+
+-- GLOBALS
+
+
+grey =
+    Element.rgb 0.9 0.9 0.9
+
+
+yellow =
+    Element.rgb255 255 236 0
 
 
 
@@ -79,71 +95,57 @@ update msg model =
 -- VIEW
 
 
+textWithFont : Int -> Element msg
+textWithFont size =
+    el [ Font.size size ] (text "Sizing Web")
+
+
+inputView : () -> Element msg
+inputView _ =
+    el [ Border.rounded 10, Border.width 1, Border.solid ] (text "1")
+
+
 view : Model -> Browser.Document Msg
 view model =
     { title = "Sizing Web"
     , body =
-        [ let
-            filePreview =
-                case model.mFile of
-                    Just i ->
-                        viewFilePreview i
+        [ Element.layout []
+            (let
+                filePreview =
+                    case model.mFile of
+                        Just i ->
+                            viewFilePreview i
 
-                    Nothing ->
-                        text ""
-          in
-          div []
-            [ input
-                [ type_ "file"
-                , id model.id
-                , on "change"
-                    (Decode.succeed FileSelected)
+                        Nothing ->
+                            el [] <| text <| ""
+             in
+             column [ width fill, height fill, centerX, alignTop, spacing 10, Background.color grey ]
+                [ el [ alignTop, centerX, padding 50 ] (textWithFont 30)
+                , el [ alignTop, centerX, padding 50 ] (inputView ())
+                , Element.html <|
+                    Html.input
+                        [ type_ "file"
+                        , id model.id
+                        , on "change" <| Decode.succeed <| FileSelected
+                        ]
+                        []
+                , filePreview
                 ]
-                []
-            , filePreview
-            ]
+            )
         ]
     }
 
 
-viewFilePreview : File -> Html Msg
+stepView : Int -> Element msg
+stepView number =
+    el [] <| text <| "This is a step" ++ fromInt number
+
+
+viewFilePreview : File -> Element msg
 viewFilePreview file =
-    div [] [ text file.filename, text file.contents ]
+    el [] <| text <| "I have your file!"
 
-
-
--- SUBSCRIPTIONS
-
-{-
-decodeValue : Value -> Msg
-decodeValue x =
-    let
-        result =
-            Decode.decodeValue Decode.string x
-    in
-    case result of
-        Ok file ->
-            FileRead file
-
-        Err _ ->
-            FileRead { filename = "Failure", contents = "" }
--}
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     fileContentRead FileRead
-
-
-
-{-
-   view : Model -> Html Msg
-   view model =
-       Element.layout [] myElement
-
-   myElement : Element msg
-   myElement =
-       Element.el
-           [ Background.gradient { angle=3, steps=[ (rgb 0 0.5 0), (rgb 0.5 0.7 1)]}
-           ]
-           (Element.text "You've made a styling element")
--}
