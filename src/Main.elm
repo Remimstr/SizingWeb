@@ -8,6 +8,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input exposing (button)
+import Graphics exposing (roundRect)
 import Html exposing (Html)
 import Html.Attributes exposing (id, style, type_, value)
 import Html.Events exposing (on)
@@ -102,7 +103,10 @@ textWithFont size =
 
 inputView : () -> Element msg
 inputView _ =
-    el [ Border.rounded 10, Border.width 1, Border.solid ] (text "1")
+    row []
+        [ Element.html <| roundRect
+        , el [] (text " Input:")
+        ]
 
 
 view : Model -> Browser.Document Msg
