@@ -103,9 +103,13 @@ textWithFont size =
 
 inputView : () -> Element msg
 inputView _ =
-    row []
-        [ Element.html <| roundRect
-        , el [] (text " Input:")
+    column []
+        [ row []
+            [ Element.html <| roundRect
+            , el [ paddingXY 0 5 ] (text " Input:")
+            ]
+          , el [ paddingXY 23 10 ] (text "a) Your electricity usage for at least one month")
+          , el [ paddingXY 23 5 ] (text "b) Your postal code")
         ]
 
 
