@@ -1,13 +1,12 @@
 port module Main exposing (main)
 
--- import Ports exposing (ImagePortData, fileSelected, fileContentRead)
-
 import Browser
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
+import File exposing (File)
 import Graphics exposing (roundRect)
 import Html exposing (Html)
 import Html.Attributes exposing (id, style, type_, value)
@@ -39,21 +38,14 @@ yellow =
 
 
 type alias Model =
-    { id : String
+    { fileList : List File
     , postalCode : String
-    , mFile : Maybe File
-    }
-
-
-type alias File =
-    { contents : String
-    , filename : String
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { id = "FileId", postalCode = "", mFile = Nothing }, Cmd.none )
+    ( { fileList = [], postalCode = "" }, Cmd.none )
 
 
 
@@ -61,35 +53,17 @@ init _ =
 
 
 type Msg
-    = FileSelected
-    | FileRead File
+    = GotFiles (List File)
     | PostalCodeUpdated String
     | Submit
-
-
-port fileSelected : String -> Cmd msg
-
-
-port fileContentRead : (File -> msg) -> Sub msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        FileSelected ->
-            ( model
-            , fileSelected model.id
-            )
-
-        FileRead data ->
-            let
-                newFile =
-                    { contents = data.contents
-                    , filename = data.filename
-                    }
-            in
+        GotFiles files ->
             ( { model
-                | mFile = Just newFile
+                | fileList = files
               }
             , Cmd.none
             )
@@ -102,10 +76,9 @@ update msg model =
             )
 
         Submit ->
-          ( model
-          , fileSelected model.id
-          )
-
+            ( model
+            , Cmd.none
+            )
 
 
 
@@ -128,12 +101,15 @@ inputView model =
             [ el [ paddingXY 24 0 ] (text "a) Your electricity usage for at least one month")
             , el [ alignRight ]
                 (Element.html <|
-                    Html.input
-                        [ type_ "file"
-                        , id model.id
-                        , on "change" <| Decode.succeed <| FileSelected
+                    Html.div []
+                        [ Html.input
+                            [ type_ "file"
+                            , Html.Attributes.multiple True
+                            , on "change" (Decode.map GotFiles filesDecoder)
+                            ]
+                            []
+                        , Html.div [] [ Html.text (Debug.toString model) ]
                         ]
-                        []
                 )
             ]
         , row [ width fill ]
@@ -151,7 +127,7 @@ inputView model =
                 }
             ]
         , row [ width fill ]
-          [ Input.button [ centerX, Border.solid, Border.width 1, Border.rounded 3, Border.glow yellow 1 ] { onPress = Nothing, label = text "Submit" }]
+            [ Input.button [ centerX, Border.solid, Border.width 1, Border.rounded 3, Border.glow yellow 1 ] { onPress = Nothing, label = text "Submit" } ]
         ]
 
 
@@ -181,16 +157,11 @@ view model =
     }
 
 
-stepView : Int -> Element msg
-stepView number =
-    el [] <| text <| "This is a step" ++ fromInt number
-
-
-viewFilePreview : File -> Element msg
-viewFilePreview file =
-    el [] <| text <| "I have your file!"
+filesDecoder : Decode.Decoder (List File)
+filesDecoder =
+    Decode.at [ "target", "files" ] (Decode.list File.decoder)
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    fileContentRead FileRead
+    Sub.none
