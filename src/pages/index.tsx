@@ -22,6 +22,9 @@ const styles = (theme: Theme) =>
       marginBottom: theme.spacing.unit,
       verticalAlign: "middle"
     },
+    button: {
+      marginTop: theme.spacing.unit,
+    },
     title: {
       textAlign: "center"
     },
@@ -134,6 +137,14 @@ class Index extends React.Component<WithStyles<typeof styles>, State> {
     }));
   };
 
+  handleBack = () => {
+    if (this.state.activeStep !== 0) {
+      this.setState(state => ({
+        activeStep: state.activeStep - 1
+      }));
+    };
+   };
+
   render() {
     const { classes } = this.props;
     const { activeStep } = this.state;
@@ -151,6 +162,7 @@ class Index extends React.Component<WithStyles<typeof styles>, State> {
             </StepLabel>
             <StepContent>
               <InputSection classes={classes} />
+              <Button className={classes.button} variant="contained" color="primary" onClick={this.handleNext}>Next</Button>
             </StepContent>
           </Step>
           <Step key={1}>
@@ -159,6 +171,10 @@ class Index extends React.Component<WithStyles<typeof styles>, State> {
             </StepLabel>
             <StepContent>
               <div>In progress</div>
+              <div>
+                <Button className={classes.button} onClick={this.handleBack}>Back</Button>
+                <Button className={classes.button} variant="contained" color="primary" onClick={this.handleNext}>Next</Button>
+              </div>
             </StepContent>
           </Step>
           <Step key={2}>
