@@ -1,173 +1,78 @@
 import * as React from "react";
-import Stepper from "@material-ui/core/Stepper";
-import Step from "@material-ui/core/Step";
-import StepLabel from "@material-ui/core/StepLabel";
-import StepContent from "@material-ui/core/StepContent";
+import AppBar from "@material-ui/core/AppBar";
+import ToolBar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
-import Input from "@material-ui/core/Input";
 import { Theme } from "@material-ui/core/styles/createMuiTheme";
 import createStyles from "@material-ui/core/styles/createStyles";
 import withStyles, { WithStyles } from "@material-ui/core/styles/withStyles";
 import withRoot from "../withRoot";
+import Steps from "./steps";
+
+const content = {
+  title: "Sizing Web",
+  blurb: (
+    <span>
+      Calculate your solar panel needs <br />
+      Tell us your monthly electricity usage and location and we'll tell you
+      what size of a solar panel array you need to power your home!
+    </span>
+  )
+};
 
 const styles = (theme: Theme) =>
   createStyles({
-    root: {
-      paddingTop: theme.spacing.unit * 10
+    appBar: {
+      position: "relative"
     },
-    text: {
-      marginTop: theme.spacing.unit * 2,
-      marginBottom: theme.spacing.unit,
-      verticalAlign: "middle"
+    blurbArea: {
+      backgroundColor: theme.palette.background.paper
     },
-    title: {
-      textAlign: "center"
-    },
-    dense: {
-      marginTop: theme.spacing.unit,
-      marginBottom: theme.spacing.unit
-    },
-    container: {
-      display: "flex",
-      flexWrap: "wrap",
-      justifyContent: "space-between"
+    blurbContent: {
+      maxWidth: 600,
+      margin: "0 auto",
+      padding: `${theme.spacing.unit * 8}px 0 ${theme.spacing.unit * 6}px`
     }
   });
 
-type InputSectionState = {
-  fileList: FileList | null;
-  fileNames: Array<string>;
-};
-
-class InputSection extends React.Component<
-  WithStyles<typeof styles>,
-  InputSectionState
-> {
-  private fileInput: React.RefObject<HTMLInputElement>;
-  constructor(props: any) {
-    super(props);
-    this.fileInput = React.createRef();
-  }
-  state = {
-    fileList: null,
-    fileNames: []
-  };
-
-  handleChange = (files: FileList) => {
-    var fileNames: Array<string> = [];
-    for (let i = 0; i < files.length; i++) {
-      fileNames.push(files[i].name);
-    }
-    console.log(fileNames);
-    this.setState(state => ({ fileList: files, fileNames: fileNames }));
-  };
-
+class Index extends React.Component<WithStyles<typeof styles>, {}> {
   render() {
     const { classes } = this.props;
-    const { fileNames } = this.state;
+
     return (
       <React.Fragment>
-        <div className={classes.container}>
-          <Typography variant="body1" className={classes.text}>
-            a) Your electricity usage for at least one month
-          </Typography>
-          <input
-            id="rbf"
-            multiple
-            type="file"
-            style={{ display: "none" }}
-            onChange={event => {
-              if (event.target.files !== null) {
-                this.handleChange(event.target.files);
-              }
-            }}
-          />
-          <label htmlFor="rbf">
-            <Button
-              variant="outlined"
-              size="large"
-              className={classes.dense}
-              component="span"
-            >
-              Upload
-            </Button>
-          </label>
-        </div>
-        {fileNames.map((item, index) => (
-          <Typography variant="body2" key={index}>
-            {item}
-          </Typography>
-        ))}
-        <div className={classes.container}>
-          <Typography variant="body1" className={classes.text}>
-            b) Your postal code
-          </Typography>
-          <TextField
-            required
-            id="postal-code"
-            label="Postal Code"
-            placeholder="A1B 2C3"
-            className={classes.dense}
-            variant="outlined"
-            margin="dense"
-          />
-        </div>
+        <AppBar position="static" className={classes.appBar}>
+          <ToolBar>
+            <Typography variant="h6" gutterBottom color="inherit">
+              {content.title}
+            </Typography>
+          </ToolBar>
+        </AppBar>
+
+        <main>
+          <div className={classes.blurbArea}>
+            <div className={classes.blurbContent}>
+              <Typography
+                component="h1"
+                variant="h2"
+                align="center"
+                color="textPrimary"
+                gutterBottom
+              >
+                {content.title}
+              </Typography>
+              <Typography
+                variant="h6"
+                align="center"
+                color="textSecondary"
+                paragraph
+              >
+                {content.blurb}
+              </Typography>
+            </div>
+          </div>
+          <Steps />
+        </main>
       </React.Fragment>
-    );
-  }
-}
-
-type State = {
-  activeStep: number;
-};
-
-class Index extends React.Component<WithStyles<typeof styles>, State> {
-  state = {
-    activeStep: 0
-  };
-
-  handleNext = () => {
-    this.setState(state => ({
-      activeStep: state.activeStep + 1
-    }));
-  };
-
-  render() {
-    const { classes } = this.props;
-    const { activeStep } = this.state;
-
-    return (
-      <div className={classes.root}>
-        <Typography variant="h4" gutterBottom className={classes.title}>
-          Sizing Web
-        </Typography>
-
-        <Stepper activeStep={activeStep} orientation="vertical">
-          <Step key={0}>
-            <StepLabel>
-              <Typography variant="h5">Input:</Typography>
-            </StepLabel>
-            <StepContent>
-              <InputSection classes={classes} />
-            </StepContent>
-          </Step>
-          <Step key={1}>
-            <StepLabel>
-              <Typography variant="h5">Processing:</Typography>
-            </StepLabel>
-            <StepContent>
-              <div>In progress</div>
-            </StepContent>
-          </Step>
-          <Step key={2}>
-            <StepLabel>
-              <Typography variant="h5">Results:</Typography>
-            </StepLabel>
-          </Step>
-        </Stepper>
-      </div>
     );
   }
 }
