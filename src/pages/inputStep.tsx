@@ -18,7 +18,8 @@ const styles = (theme: Theme) =>
       marginBottom: theme.spacing.unit,
       verticalAlign: "middle"
     },
-    rightButton: {
+		button: {
+			marginLeft: theme.spacing.unit,
       marginRight: theme.spacing.unit * 0.5
     },
     inlineButton: {
@@ -37,7 +38,7 @@ const styles = (theme: Theme) =>
     flexRow: {
       display: "flex",
       flexDirection: "row",
-      justifyContent: "space-between",
+      justifyContent: "flex-end",
       flexWrap: "wrap",
       alignItems: "center"
     },
@@ -109,7 +110,7 @@ class InputStep extends React.Component<
             <IconButton
               aria-label="Delete"
               onClick={_ => removeItem(index)}
-              className={classes.rightButton}
+              className={classes.button}
             >
               <DeleteIcon fontSize="small" />
             </IconButton>
