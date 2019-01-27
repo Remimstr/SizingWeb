@@ -13,13 +13,8 @@ import Input from "@material-ui/core/Input";
 
 const styles = (theme: Theme) =>
   createStyles({
-    text: {
-      marginTop: theme.spacing.unit * 2,
-      marginBottom: theme.spacing.unit,
-      verticalAlign: "middle"
-    },
-		button: {
-			marginLeft: theme.spacing.unit,
+    button: {
+      marginLeft: theme.spacing.unit,
       marginRight: theme.spacing.unit * 0.5
     },
     inlineButton: {
@@ -55,10 +50,13 @@ const styles = (theme: Theme) =>
   });
 
 interface InputStepProps {
+  classes: {
+    text: string;
+  };
   fileNames: Array<File>;
-	postalCode: string,
+  postalCode: string;
   handleFileUpdate(files: FileList): void;
-  handlePostalUpdate(value: String): void,
+  handlePostalUpdate(value: String): void;
   removeItem(index: number): void;
   removeAllItems(): void;
 }
@@ -75,11 +73,22 @@ class InputStep extends React.Component<
 
   render() {
     const { classes } = this.props;
-    const { fileNames, postalCode, handleFileUpdate, handlePostalUpdate, removeItem, removeAllItems } = this.props;
+    const {
+      fileNames,
+      postalCode,
+      handleFileUpdate,
+      handlePostalUpdate,
+      removeItem,
+      removeAllItems
+    } = this.props;
     return (
       <React.Fragment>
         <div className={classes.container}>
-          <Typography variant="body1" className={classes.text}>
+          <Typography
+            variant="h6"
+            color="textSecondary"
+            className={classes.text}
+          >
             a) Your electricity usage for at least one month
           </Typography>
           <input
@@ -116,7 +125,7 @@ class InputStep extends React.Component<
             </IconButton>
           </div>
         ))}
-        {fileNames.length > 0 ? (
+        {fileNames.length > 1 ? (
           <div className={classes.rightAlign}>
             <Button
               variant="contained"
@@ -132,7 +141,11 @@ class InputStep extends React.Component<
           </div>
         ) : null}
         <div className={classes.container}>
-          <Typography variant="body1" className={classes.text}>
+          <Typography
+            variant="h6"
+            color="textSecondary"
+            className={classes.text}
+          >
             b) Your postal code
           </Typography>
           <TextField
