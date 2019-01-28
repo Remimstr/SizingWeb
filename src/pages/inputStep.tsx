@@ -46,13 +46,15 @@ const styles = (theme: Theme) =>
     },
     iconSmall: {
       fontSize: 20
-    }
+    },
+    text: {
+      marginTop: theme.spacing.unit * 2,
+      marginBottom: theme.spacing.unit,
+      verticalAlign: "middle"
+    },
   });
 
 interface InputStepProps {
-  classes: {
-    text: string;
-  };
   fileNames: Array<File>;
   postalCode: string;
   handleFileUpdate(files: FileList): void;

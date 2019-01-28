@@ -9,6 +9,7 @@
     "@types/classnames": "^2.2.7",
     "@types/react": "*",
     "@types/react-dom": "*",
+    "axios": "^0.18.0",
     "classnames": "^2.2.6",
     "react": "latest",
     "react-dom": "latest",

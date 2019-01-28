@@ -11,11 +11,12 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import InputStep from "./inputStep";
 import ProcessingStep from "./processingStep";
+import uploadRequest from "./request";
 
 interface StepFlowButtonsProps {
   classes: {
     button: string;
-		leftButton: string;
+    leftButton: string;
   };
   renderNext: boolean;
   renderBack: boolean;
@@ -49,7 +50,7 @@ const StepFlowButtons = (props: StepFlowButtonsProps) => {
       {renderNext ? (
         <Button
           disabled={disabledNext}
-          className={renderBack ? classes.button : classes.leftButton }
+          className={renderBack ? classes.button : classes.leftButton}
           variant="contained"
           color="primary"
           onClick={handleNext}
@@ -77,34 +78,33 @@ const styles = (theme: Theme) =>
       marginBottom: theme.spacing.unit,
       verticalAlign: "middle"
     },
-		section: {
-			marginTop: theme.spacing.unit * 5,
-			marginBottom: theme.spacing.unit * 5
-		},
-		centerItems: {
-			display: "flex",
-			flexDirection: "row",
-			justifyContent: "center",
-			textAlign: "center"
-		},
-		itemsCol: {
-			display: "flex",
-			flexDirection: "column",
-			justifyContent: "center",
+    section: {
+      marginTop: theme.spacing.unit * 5,
+      marginBottom: theme.spacing.unit * 5
     },
-		leftButton: {
-			marginTop: theme.spacing.unit,
-			marginBottom: theme.spacing.unit,
-		  marginRight: theme.spacing.unit
-		},
+    centerItems: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      textAlign: "center"
+    },
+    itemsCol: {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center"
+    },
+    leftButton: {
+      marginTop: theme.spacing.unit,
+      marginBottom: theme.spacing.unit,
+      marginRight: theme.spacing.unit
+    },
     button: {
       margin: theme.spacing.unit
     },
-		textfield: {
-			marginLeft: theme.spacing.unit,
-			marginRight: theme.spacing.unit
-		}
-    
+    textfield: {
+      marginLeft: theme.spacing.unit,
+      marginRight: theme.spacing.unit
+    }
   });
 
 type State = {
@@ -116,13 +116,14 @@ type State = {
 
 class Steps extends React.Component<WithStyles<typeof styles>, State> {
   state = {
-    activeStep: 1,
+    activeStep: 0,
     fileList: [],
     fileNames: [],
     postalCode: null
   };
 
   handleFileUpdate = (files: FileList) => {
+  	uploadRequest(files)
     var fileList: Array<File> = this.state.fileList;
     var fileNames: Array<String> = this.state.fileNames;
     for (let i = 0; i < files.length; i++) {
@@ -205,16 +206,15 @@ class Steps extends React.Component<WithStyles<typeof styles>, State> {
             <Typography variant="h5">Input:</Typography>
           </StepLabel>
           <StepContent>
-            <div className={classes.section} >
-            <InputStep
-              classes={classes}
-              fileNames={fileNames}
-              postalCode={postalCode == null ? "" : postalCode}
-              handleFileUpdate={this.handleFileUpdate}
-              handlePostalUpdate={this.handlePostalUpdate}
-              removeItem={this.removeItem}
-              removeAllItems={this.removeAllItems}
-            />
+            <div className={classes.section}>
+              <InputStep
+                fileNames={fileNames}
+                postalCode={postalCode == null ? "" : postalCode}
+                handleFileUpdate={this.handleFileUpdate}
+                handlePostalUpdate={this.handlePostalUpdate}
+                removeItem={this.removeItem}
+                removeAllItems={this.removeAllItems}
+              />
             </div>
 
             <StepFlowButtons
@@ -230,8 +230,8 @@ class Steps extends React.Component<WithStyles<typeof styles>, State> {
             <Typography variant="h5">Processing:</Typography>
           </StepLabel>
           <StepContent>
-            <div className={classes.section} >
-              <ProcessingStep classes={classes}/>
+            <div className={classes.section}>
+              <ProcessingStep classes={classes} />
             </div>
             <StepFlowButtons
               classes={classes}
