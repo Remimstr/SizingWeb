@@ -24,3 +24,4 @@ yarn-error.log*
 
 # random
 notes.txt
+package-lock.json
