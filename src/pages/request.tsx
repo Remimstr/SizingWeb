@@ -9,22 +9,24 @@ var instance = axios.create({
 });
 
 const getBase64 = (file: any) => {
-	var reader = new FileReader();
-	reader.readAsDataURL(file);
-	reader.onload = () => {
-		return reader.result;
-	};
-	reader.onerror = error => {
-		return error;
-	};
+	console.log("this is the file", file);
+	return new Promise((resolve, reject) => {
+	  var reader = new FileReader();
+	  reader.readAsDataURL(file);
+		reader.onload = () => resolve(reader.result ? reader.result : {});
+		reader.onerror = error => reject(error);
+	});
 }
 
 const uploadFile = (files: FileList) => {
-  instance
-    .post("/", {
-      load_data: getBase64(files[0])
-    })
-    .then(response => console.log(response));
+  getBase64(files[0]).then(data => {
+    instance
+      .post("/", {
+			  load_data: data
+      })
+      .then(response => console.log(response))
+	}
+	)
 };
 
 export default uploadFile;
