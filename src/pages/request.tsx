@@ -13,7 +13,7 @@ const uploadFile = (files: FileList) => {
     console.log(files[i]);
     instance
       .post("/", {
-        file_data: "010101\\n2500"
+        file_data: files[0]
       })
       .then(response => console.log(response));
   }
