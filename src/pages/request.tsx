@@ -13,13 +13,14 @@ const getBase64 = (file: any) => {
 	return new Promise((resolve, reject) => {
 	  var reader = new FileReader();
 	  reader.readAsDataURL(file);
-		reader.onload = () => resolve(reader.result ? reader.result : {});
+		reader.onload = () => resolve(reader.result ? String(reader.result).split(",")[1] : "");
 		reader.onerror = error => reject(error);
 	});
 }
 
 const uploadFile = (files: FileList) => {
   getBase64(files[0]).then(data => {
+    console.log(data);
     instance
       .post("/", {
 			  load_data: data
