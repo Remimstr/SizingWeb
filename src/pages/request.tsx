@@ -13,7 +13,7 @@ const uploadFile = (files: FileList) => {
     console.log(files[i]);
     instance
       .post("/", {
-        file_data: files[0]
+        load_data: files[0]
       })
       .then(response => console.log(response));
   }
