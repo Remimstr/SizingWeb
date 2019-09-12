@@ -107,81 +107,85 @@ const styles = (theme: Theme) =>
     }
   });
 
-type State = {
+export type State = {
   activeStep: number;
-  fileList: Array<File>;
-  fileNames: Array<String>;
-  postalCode: String | null;
+  loadTrace: {
+    files: Array<File>;
+    interval: string;
+  };
+  solarTrace: {
+    files: Array<File>;
+    interval: string;
+  };
+  costs: {
+    panel: number;
+    battery: number;
+  };
+  performanceTarget: {
+    percentLoad: number;
+  };
 };
 
 class Steps extends React.Component<WithStyles<typeof styles>, State> {
   state = {
     activeStep: 0,
-    fileList: [],
-    fileNames: [],
-    postalCode: null
-  };
-
-  handleFileUpdate = (files: FileList) => {
-  	uploadRequest(files)
-    var fileList: Array<File> = this.state.fileList;
-    var fileNames: Array<String> = this.state.fileNames;
-    for (let i = 0; i < files.length; i++) {
-      fileList.push(files[i]);
-      fileNames.push(files[i].name);
-    }
-    this.setState(state => ({
-      ...this.state,
-      fileList: fileList,
-      fileNames: fileNames
-    }));
-  };
-
-  handlePostalUpdate = (value: String) => {
-    if (value !== "") {
-      this.setState(state => ({
-        ...this.state,
-        postalCode: value
-      }));
-    } else {
-      this.setState(state => ({
-        ...this.state,
-        postalCode: null
-      }));
+    loadTrace: {
+      files: [],
+      interval: ""
+    },
+    solarTrace: {
+      files: [],
+      interval: ""
+    },
+    costs: {
+      panel: 2000,
+      battery: 800
+    },
+    performanceTarget: {
+      percentLoad: 1
     }
   };
 
-  removeItem = (index: Number) => {
+  handleLoadTraceFileUpdate = (files: Array<File>) => {
     this.setState(state => ({
-      ...this.state,
-      fileList: this.state.fileList.filter((_, i) => i !== index),
-      fileNames: this.state.fileNames.filter((_, i) => i !== index)
+      loadTrace: {
+        ...state.loadTrace,
+        files
+      }
     }));
   };
 
-  removeAllItems = () => {
+  handleLoadTraceIntervalUpdate = (interval: string) => {
     this.setState(state => ({
-      ...this.state,
-      fileList: [],
-      fileNames: []
+      loadTrace: {
+        ...state.loadTrace,
+        interval
+      }
     }));
   };
 
-  canProceed = (index: Number) => {
-    const { fileList, fileNames, postalCode } = this.state;
-    switch (index) {
-      case 0:
-        return fileList.length !== 0 &&
-          fileNames.length !== 0 &&
-          postalCode !== null
-          ? true
-          : false;
-      default:
-        return false;
-    }
+  handleSolarTraceFileUpdate = (files: Array<File>) => {
+    this.setState(state => ({
+      solarTrace: {
+        ...state.solarTrace,
+        files
+      }
+    }));
+  };
+
+  handleSolarTraceIntervalUpdate = (interval: string) => {
+    this.setState(state => ({
+      solarTrace: {
+        ...state.solarTrace,
+        interval
+      }
+    }));
   };
 
   handleNext = () => {
+    if (this.state.activeStep === 0) {
+      uploadRequest(this.state);
+    }
     this.setState(state => ({
       activeStep: state.activeStep + 1
     }));
@@ -197,7 +201,11 @@ class Steps extends React.Component<WithStyles<typeof styles>, State> {
 
   render() {
     const { classes } = this.props;
-    const { activeStep, postalCode, fileNames } = this.state;
+    const {
+      activeStep,
+      loadTrace: { files: loadTraceFiles },
+      solarTrace: { files: solarTraceFiles }
+    } = this.state;
 
     return (
       <Stepper activeStep={activeStep} orientation="vertical">
@@ -208,19 +216,22 @@ class Steps extends React.Component<WithStyles<typeof styles>, State> {
           <StepContent>
             <div className={classes.section}>
               <InputStep
-                fileNames={fileNames}
-                postalCode={postalCode == null ? "" : postalCode}
-                handleFileUpdate={this.handleFileUpdate}
-                handlePostalUpdate={this.handlePostalUpdate}
-                removeItem={this.removeItem}
-                removeAllItems={this.removeAllItems}
+                handleLoadTraceFileUpdate={this.handleLoadTraceFileUpdate}
+                handleSolarTraceFileUpdate={this.handleSolarTraceFileUpdate}
+                handleLoadTraceIntervalUpdate={
+                  this.handleLoadTraceIntervalUpdate
+                }
+                handleSolarTraceIntervalUpdate={
+                  this.handleSolarTraceIntervalUpdate
+                }
+                loadTraceFiles={loadTraceFiles}
+                solarTraceFiles={solarTraceFiles}
               />
             </div>
 
             <StepFlowButtons
               classes={classes}
               renderBack={false}
-              disabledNext={!this.canProceed(0)}
               handleNext={this.handleNext}
             />
           </StepContent>

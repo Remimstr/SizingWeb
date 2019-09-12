@@ -51,16 +51,97 @@ const styles = (theme: Theme) =>
       marginTop: theme.spacing.unit * 2,
       marginBottom: theme.spacing.unit,
       verticalAlign: "middle"
-    },
+    }
   });
 
+const fileListToArray = (files: FileList) => {
+  var fileArray: Array<File> = [];
+  for (let i = 0; i < files.length; i++) {
+    fileArray.push(files[i]);
+  }
+
+  return fileArray;
+};
+
+interface FileInputSectionProps {
+  classes: {
+    container: string;
+    text: string;
+    dense: string;
+    rightAlign: string;
+    flexRow: string;
+  };
+  htmlKey: string;
+  title: string;
+  fileUpdateHandler(file: Array<File>): void;
+  fileList: Array<File>;
+}
+
+const FileInputSection = (props: FileInputSectionProps) => {
+  const { classes, title, fileUpdateHandler, fileList, htmlKey } = props;
+
+  return (
+    <>
+      <div className={classes.container}>
+        <Typography variant="h6" color="textSecondary" className={classes.text}>
+          {title}
+        </Typography>
+        <input
+          id={htmlKey}
+          type="file"
+          style={{ display: "none" }}
+          onChange={event => {
+            if (event.target.files !== null) {
+              fileUpdateHandler(fileListToArray(event.target.files));
+            }
+          }}
+        />
+        <label htmlFor={htmlKey}>
+          <Button
+            variant="outlined"
+            size="large"
+            className={classes.dense}
+            component="span"
+          >
+            Upload
+          </Button>
+        </label>
+      </div>
+      <div className={classes.rightAlign}>
+        {fileList.map((item, index) => (
+          <div key={index} className={classes.flexRow}>
+            <Typography variant="body2">{item.name}</Typography>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
+interface IntervalSectionProps {
+  handleIntervalChange(interval: string): void;
+}
+
+const IntervalSection = (props: IntervalSectionProps) => {
+  const { handleIntervalChange } = props;
+  return (
+    <>
+      <TextField
+        label="Interval"
+        type="number"
+        onChange={event => handleIntervalChange(event.target.value)}
+      />
+    </>
+  );
+};
+
 interface InputStepProps {
-  fileNames: Array<File>;
-  postalCode: string;
-  handleFileUpdate(files: FileList): void;
-  handlePostalUpdate(value: String): void;
-  removeItem(index: number): void;
-  removeAllItems(): void;
+  handleLoadTraceFileUpdate(file: Array<File>): void;
+  handleSolarTraceFileUpdate(file: Array<File>): void;
+  handleLoadTraceIntervalUpdate(value: string): void;
+  handleSolarTraceIntervalUpdate(value: string): void;
+  loadTraceFiles: Array<File>;
+  solarTraceFiles: Array<File>;
 }
 
 class InputStep extends React.Component<
@@ -76,93 +157,34 @@ class InputStep extends React.Component<
   render() {
     const { classes } = this.props;
     const {
-      fileNames,
-      postalCode,
-      handleFileUpdate,
-      handlePostalUpdate,
-      removeItem,
-      removeAllItems
+      handleLoadTraceFileUpdate,
+      handleSolarTraceFileUpdate,
+      handleLoadTraceIntervalUpdate,
+      handleSolarTraceIntervalUpdate,
+      loadTraceFiles,
+      solarTraceFiles
     } = this.props;
     return (
-      <React.Fragment>
-        <div className={classes.container}>
-          <Typography
-            variant="h6"
-            color="textSecondary"
-            className={classes.text}
-          >
-            a) Your electricity usage for at least one month
-          </Typography>
-          <input
-            id="rbf"
-            multiple
-            type="file"
-            style={{ display: "none" }}
-            onChange={event => {
-              if (event.target.files !== null) {
-                handleFileUpdate(event.target.files);
-              }
-            }}
-          />
-          <label htmlFor="rbf">
-            <Button
-              variant="outlined"
-              size="large"
-              className={classes.dense}
-              component="span"
-            >
-              Upload
-            </Button>
-          </label>
-        </div>
-        {fileNames.map((item, index) => (
-          <div key={index} className={classes.flexRow}>
-            <Typography variant="body2">{item}</Typography>
-            <IconButton
-              aria-label="Delete"
-              onClick={_ => removeItem(index)}
-              className={classes.button}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </div>
-        ))}
-        {fileNames.length > 1 ? (
-          <div className={classes.rightAlign}>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={_ => removeAllItems()}
-              className={classes.inlineButton}
-            >
-              Delete All
-              <DeleteIcon
-                className={classNames(classes.iconSmall, classes.rightIcon)}
-              />
-            </Button>
-          </div>
-        ) : null}
-        <div className={classes.container}>
-          <Typography
-            variant="h6"
-            color="textSecondary"
-            className={classes.text}
-          >
-            b) Your postal code
-          </Typography>
-          <TextField
-            required
-            id="postal-code"
-            label="Postal Code"
-            placeholder="A1B 2C3"
-            className={classes.dense}
-            variant="outlined"
-            margin="dense"
-            value={postalCode}
-            onChange={event => handlePostalUpdate(event.target.value)}
-          />
-        </div>
-      </React.Fragment>
+      <>
+        <FileInputSection
+          htmlKey="load trace"
+          classes={classes}
+          title="Upload a Load Trace File"
+          fileUpdateHandler={handleLoadTraceFileUpdate}
+          fileList={loadTraceFiles}
+        />
+        <IntervalSection handleIntervalChange={handleLoadTraceIntervalUpdate} />
+        <FileInputSection
+          htmlKey="solar trace"
+          classes={classes}
+          title="Upload a Solar Trace File"
+          fileUpdateHandler={handleSolarTraceFileUpdate}
+          fileList={solarTraceFiles}
+        />
+        <IntervalSection
+          handleIntervalChange={handleSolarTraceIntervalUpdate}
+        />
+      </>
     );
   }
 }
