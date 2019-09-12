@@ -10,21 +10,31 @@ var instance = axios.create({
 });
 
 const mapStateToJSON = (state: any) => {
-  return {
-    load_trace: {
-      file: getBase64(state.loadTrace.files[0]),
-      interval: state.loadTrace.interval
-    },
-    solar_trace: {
-      file: getBase64(state.solarTrace.files[0]),
-      interval: state.solarTrace.interval
-    },
-    costs: state.costs,
-    performance_target: {
-      percent_load: state.performanceTarget.percentLoad
-    }
-  };
+  const loadTracePromise = getBase64(state.loadTrace.files[0]);
+  const solarTracePromise = getBase64(state.solarTrace.files[0]);
+
+  return new Promise((resolve, reject) => {
+    Promise.all([loadTracePromise, solarTracePromise]).then(values => {
+      const [loadTraceFile, solarTraceFile] = values;
+
+      resolve({
+        load_trace: {
+          file: loadTraceFile,
+          interval: state.loadTrace.interval
+        },
+        solar_trace: {
+          file: solarTraceFile,
+          interval: state.solarTrace.interval
+        },
+        costs: state.costs,
+        performance_target: {
+          percent_load: state.performanceTarget.percentLoad
+        }
+      });
+    });
+  });
 };
+
 const getBase64 = (file: any) => {
   return new Promise((resolve, reject) => {
     var reader = new FileReader();
@@ -36,12 +46,14 @@ const getBase64 = (file: any) => {
 };
 
 const uploadData = (data: any) => {
-  const processedData = mapStateToJSON(data);
-  instance
-    .post("/", {
-      ...processedData
-    })
-    .then(response => console.log(response));
+  mapStateToJSON(data).then(data => {
+    console.log(data);
+    instance
+      .post("/", {
+        ...data
+      })
+      .then(response => console.log(response));
+  });
 };
 
 export default uploadData;
