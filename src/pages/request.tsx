@@ -39,7 +39,7 @@ const uploadData = (data: any) => {
   const processedData = mapStateToJSON(data);
   instance
     .post("/", {
-      data: processedData
+      ...processedData
     })
     .then(response => console.log(response));
 };
